@@ -4,7 +4,6 @@
     <div>
       <button @click="connectWebSocket" :disabled="connected">Conectar al WebSocket</button>
     </div>
-    <p>{{ message }}</p>
     <div class="table-container">
       <table v-if="trains.length > 0">
         <thead>
@@ -24,32 +23,23 @@
             <td>{{ train.driver_name }}</td>
             <td>{{ train.origin_station_id }}</td>
             <td>{{ train.destination_station_id }}</td>
-            <td>{{ getActualStation(train.train_id) }}</td> 
+            <td>{{ getActualStation(train.train_id) }}</td> <!-- Mostramos la estación actual del tren -->
           </tr>
         </tbody>
       </table>
       <p v-else>No hay datos de trenes disponibles.</p>
-    </div>
-    <div class="arrival-messages" v-if="filteredEvents.length > 0">
-      <h3>Eventos de Llegada</h3>
-      <ul>
-        <li v-for="event in filteredEvents" :key="event.timestamp">
-          {{ event }}
-        </li>
-      </ul>
     </div>
   </div>
 </template>
 
 <script setup>
 import axios from 'axios';
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 
 let ws = null;
 const connected = ref(false);
 const events = ref([]);
 const trains = ref([]);
-const message = ref("");
 
 const connectWebSocket = () => {
   if (!ws) {
@@ -72,15 +62,11 @@ const connectWebSocket = () => {
       const eventData = JSON.parse(event.data);
       if (eventData.type === 'arrival') {
         const trainId = eventData.data.train_id;
-        const trainExists = trains.value.some(train => train.train_id === trainId);
-        if (trainExists) {
-          message.value = "Se actualizó la información de la tabla.";
-        } else {
-          message.value = `El tren con ID ${trainId} no se encuentra disponible en este momento.`;
+        const trainIndex = trains.value.findIndex(train => train.train_id === trainId);
+        if (trainIndex !== -1) {
+          // Actualizamos la estación actual del tren en la tabla
+          trains.value[trainIndex].actual_station_id = eventData.data.station_id;
         }
-        setTimeout(() => {
-          message.value = "";
-        }, 5000);
         events.value.push(eventData);
       }
     };
@@ -105,16 +91,10 @@ const fetchTrains = async () => {
   }
 };
 
-const filteredEvents = computed(() => {
-  return events.value.filter(event => event.type === 'arrival');
-});
-
-
 const getActualStation = (trainId) => {
-  const latestArrivalEvent = events.value.find(event => event.data.train_id === trainId);
-  return latestArrivalEvent ? latestArrivalEvent.data.station_id : '-';
+  const train = trains.value.find(train => train.train_id === trainId);
+  return train ? train.actual_station_id : '-';
 };
-
 
 fetchTrains();
 </script>
@@ -131,20 +111,8 @@ fetchTrains();
   max-height: 400px;
   overflow-y: auto;
 }
-
-.arrival-messages {
-  margin-top: 20px;
-}
-
-.arrival-messages ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-.arrival-messages li {
-  margin-bottom: 5px;
-}
 </style>
+
 
 
 

@@ -1,10 +1,8 @@
-<!-- Map.vue -->
-
 <template>
   <div>
-    <div id="map"></div>
+    <div id="map">Mapa</div>
     <div class="position-events">
-      <h2>Eventos de Posición</h2>
+      <h2></h2>
       <ul>
         <li v-for="event in positionEvents" :key="event.timestamp">
           {{ event }}
@@ -68,13 +66,13 @@ onMounted(async () => {
       fillColor: lineColor
     }).addTo(map);
 
-    // Add station name as text on the map
-    const stationName = L.divIcon({
-      className: 'station-name',
-      html: `<div>${station.name}</div>`
-    });
-
-    L.marker([station.position.lat, station.position.long], { icon: stationName }).addTo(map);
+    // Add station name, ID, and line as a popup on the marker
+    const popupContent = `
+      <b>${station.name}</b><br>
+      <b>ID:</b> ${station.station_id}<br>
+      <b>Línea:</b> ${station.line_id}<br>
+    `;
+    marker.bindPopup(popupContent);
   });
 
   // Connect to WebSocket for position events
@@ -103,19 +101,8 @@ onMounted(async () => {
 
 <style>
 #map { height: 400px; }
-.station-name {
-  font-weight: bold;
-  text-align: center;
-  color: black; /* Color de texto negro */
-}
-.position-events {
-  margin-top: 20px;
-}
-.position-events ul {
-  list-style-type: none;
-  padding: 0;
-}
 </style>
+
 
 
 
