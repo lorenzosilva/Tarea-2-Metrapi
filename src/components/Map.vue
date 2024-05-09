@@ -29,7 +29,6 @@ onMounted(async () => {
   const response = await axios.get('https://tarea-2.2024-1.tallerdeintegracion.cl/api/metro/stations');
   const stations = response.data;
 
-  // Define colors for each line
   const lineColors = {
     '1': 'red',
     '2': 'orange',
@@ -40,7 +39,7 @@ onMounted(async () => {
     '6': 'purple'
   };
 
-  // Group stations by line
+
   const stationsByLine = {};
   stations.forEach(station => {
     if (!stationsByLine[station.line_id]) {
@@ -49,14 +48,14 @@ onMounted(async () => {
     stationsByLine[station.line_id].push(station);
   });
 
-  // Draw lines for each line of stations
+ 
   Object.values(stationsByLine).forEach(stations => {
     const lineColor = lineColors[stations[0].line_id];
     const positions = stations.map(station => [station.position.lat, station.position.long]);
     L.polyline(positions, { color: lineColor }).addTo(map);
   });
 
-  // Add markers for each station
+
   stations.forEach(station => {
     const lineColor = lineColors[station.line_id];
     const marker = L.circleMarker([station.position.lat, station.position.long], {
@@ -66,7 +65,7 @@ onMounted(async () => {
       fillColor: lineColor
     }).addTo(map);
 
-    // Add station name, ID, and line as a popup on the marker
+ 
     const popupContent = `
       <b>${station.name}</b><br>
       <b>ID:</b> ${station.station_id}<br>
@@ -75,7 +74,7 @@ onMounted(async () => {
     marker.bindPopup(popupContent);
   });
 
-  // Connect to WebSocket for position events
+
   const ws = new WebSocket('wss://tarea-2.2024-1.tallerdeintegracion.cl/connect');
 
   ws.onopen = () => {
