@@ -1,7 +1,16 @@
+<!-- Map.vue -->
+
 <template>
   <div>
     <div id="map"></div>
-    Hola Mapa
+    <div class="position-events">
+      <h2>Eventos de Posición</h2>
+      <ul>
+        <li v-for="event in positionEvents" :key="event.timestamp">
+          {{ event }}
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -9,6 +18,8 @@
 import { ref, onMounted } from 'vue';
 import L from 'leaflet';
 import axios from 'axios';
+
+const positionEvents = ref([]);
 
 onMounted(async () => {
   const map = L.map('map').setView([-33.437025035183005, -70.63350360318339], 13);
@@ -20,7 +31,7 @@ onMounted(async () => {
   const response = await axios.get('https://tarea-2.2024-1.tallerdeintegracion.cl/api/metro/stations');
   const stations = response.data;
 
-
+  // Define colors for each line
   const lineColors = {
     '1': 'red',
     '2': 'orange',
@@ -31,49 +42,62 @@ onMounted(async () => {
     '6': 'purple'
   };
 
- 
-  const stationsByPosition = {};
+  // Group stations by line
+  const stationsByLine = {};
   stations.forEach(station => {
-    const key = `${station.position.lat},${station.position.long}`;
-    if (!stationsByPosition[key]) {
-      stationsByPosition[key] = [];
+    if (!stationsByLine[station.line_id]) {
+      stationsByLine[station.line_id] = [];
     }
-    stationsByPosition[key].push(station);
+    stationsByLine[station.line_id].push(station);
   });
 
-  
-  Object.values(stationsByPosition).forEach(stations => {
+  // Draw lines for each line of stations
+  Object.values(stationsByLine).forEach(stations => {
     const lineColor = lineColors[stations[0].line_id];
     const positions = stations.map(station => [station.position.lat, station.position.long]);
     L.polyline(positions, { color: lineColor }).addTo(map);
   });
 
+  // Add markers for each station
+  stations.forEach(station => {
+    const lineColor = lineColors[station.line_id];
+    const marker = L.circleMarker([station.position.lat, station.position.long], {
+      fillOpacity: 1,
+      radius: 8,
+      color: lineColor,
+      fillColor: lineColor
+    }).addTo(map);
 
-  Object.values(stationsByPosition).forEach(stations => {
-    stations.forEach(station => {
-      const lineColor = lineColors[station.line_id];
-      const marker = L.circleMarker([station.position.lat, station.position.long], {
-        fillOpacity: 1,
-        radius: 8,
-        color: lineColor,
-        fillColor: lineColor
-      }).addTo(map);
-
-      let popupContent = `<b>${station.name}</b><br>Linea: ${station.line_id}<br>ID Estacion: ${station.station_id}<br>`;
-      marker.bindPopup(popupContent);
-
-      L.tooltip({
-        direction: 'bottom',
-        permanent: true,
-        opacity: 1,
-        className: 'station-name'
-      })
-        .setContent(station.name)
-        .setLatLng([station.position.lat, station.position.long])
-        .addTo(map);
+    // Add station name as text on the map
+    const stationName = L.divIcon({
+      className: 'station-name',
+      html: `<div>${station.name}</div>`
     });
+
+    L.marker([station.position.lat, station.position.long], { icon: stationName }).addTo(map);
   });
 
+  // Connect to WebSocket for position events
+  const ws = new WebSocket('wss://tarea-2.2024-1.tallerdeintegracion.cl/connect');
+
+  ws.onopen = () => {
+    console.log("WebSocket connected");
+  };
+
+  ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    if (data.type === 'position') {
+      positionEvents.value.push(data);
+    }
+  };
+
+  ws.onerror = (error) => {
+    console.error("WebSocket error:", error);
+  };
+
+  ws.onclose = () => {
+    console.log("WebSocket connection closed");
+  };
 });
 </script>
 
@@ -82,8 +106,18 @@ onMounted(async () => {
 .station-name {
   font-weight: bold;
   text-align: center;
+  color: black; /* Color de texto negro */
+}
+.position-events {
+  margin-top: 20px;
+}
+.position-events ul {
+  list-style-type: none;
+  padding: 0;
 }
 </style>
+
+
 
 
 
