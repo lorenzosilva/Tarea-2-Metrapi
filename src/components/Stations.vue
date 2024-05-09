@@ -1,7 +1,7 @@
 <template>
   <div class="stations-container">
     <h1>Estaciones de Metro</h1>
-    <div class="table-container"> <!-- Contenedor para la tabla -->
+    <div class="table-container"> 
       <table>
         <thead>
           <tr>
@@ -64,15 +64,15 @@ th, td {
 .stations-container {
   display: flex;
   flex-direction: column;
-  max-height: 600px; /* Altura máxima del contenedor general */
+  max-height: 600px; 
   overflow: hidden;
 }
 
 .table-container {
-  max-height: 500px; /* Altura máxima para el contenedor de la tabla */
-  overflow-y: auto; /* Habilita el desplazamiento vertical para la tabla */
-  background-color: #f0f0f0; /* Color de fondo opcional */
-  padding: 10px; /* Espaciado para el contenedor de la tabla */
+  max-height: 500px; 
+  overflow-y: auto; 
+  background-color: #f0f0f0; 
+  padding: 10px; 
 }
 
 table {

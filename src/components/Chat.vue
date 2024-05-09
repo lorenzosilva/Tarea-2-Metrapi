@@ -49,9 +49,9 @@
           const message = {
             id: Date.now(),
             content: data.data.content,
-            sender: data.data.name || "Usuario",  // Poner "Usuario" si no hay nombre específico
+            sender: data.data.name || "Usuario",  
             timestamp: data.timestamp,
-            isMine: data.data.id === userId  // Asumiendo que el mensaje tiene un identificador de usuario
+            isMine: data.data.id === userId  
           };
           listMessages.value.push(message);
         }
@@ -86,7 +86,7 @@
 .message-list {
   overflow-y: auto;
   flex-grow: 1;
-  background-color: #f0f0f0; /* Color de fondo del área de mensajes */
+  background-color: #f0f0f0; 
   padding: 10px;
 }
 
@@ -110,7 +110,7 @@
 
 .mine .message-bubble {
   background-color: #dcf8c6;
-  align-self: flex-end; /* Alinea los mensajes del usuario a la derecha */
+  align-self: flex-end; 
 }
 
 .message-content {
@@ -146,16 +146,3 @@ button {
   cursor: pointer;
 }
 </style>
-
-  
-  
-  
-  //1. Que imprima todos los mensajes en el template. Y ojalá bonito (hoy día) 
-  //2. Que sea escroleable (hoy día) 
-  //3. Hacer lo mismo que esta clase en station y trens y que imprima la información en pantalla (fds)
-  //4. Revisar el endpoint que me dieron para hacer el mapa. Usa el lifleif que es para hacer el mapa (fds)
-
-//debbugear
-//tipos de datos
-//funciones
-//cosas basicas de javascript

@@ -14,7 +14,7 @@
             <th>Chofer</th>
             <th>Estación Origen</th>
             <th>Estación Destino</th>
-            <th>Estación Actual</th> <!-- Nueva columna -->
+            <th>Estación Actual</th> 
           </tr>
         </thead>
         <tbody>
@@ -24,11 +24,19 @@
             <td>{{ train.driver_name }}</td>
             <td>{{ train.origin_station_id }}</td>
             <td>{{ train.destination_station_id }}</td>
-            <td>{{ getActualStation(train.train_id) }}</td> <!-- Mostrar la estación actual -->
+            <td>{{ getActualStation(train.train_id) }}</td> 
           </tr>
         </tbody>
       </table>
       <p v-else>No hay datos de trenes disponibles.</p>
+    </div>
+    <div class="arrival-messages" v-if="filteredEvents.length > 0">
+      <h3>Eventos de Llegada</h3>
+      <ul>
+        <li v-for="event in filteredEvents" :key="event.timestamp">
+          {{ event }}
+        </li>
+      </ul>
     </div>
   </div>
 </template>
@@ -53,7 +61,7 @@ const connectWebSocket = () => {
       ws.send(JSON.stringify({
         type: "JOIN",
         payload: {
-          id: "17625319", // tu ID de usuario
+          id: "17625319", 
           username: "Lorenzo Silva"
         }
       }));
@@ -101,13 +109,13 @@ const filteredEvents = computed(() => {
   return events.value.filter(event => event.type === 'arrival');
 });
 
-// Función para obtener la estación actual del tren
+
 const getActualStation = (trainId) => {
   const latestArrivalEvent = events.value.find(event => event.data.train_id === trainId);
   return latestArrivalEvent ? latestArrivalEvent.data.station_id : '-';
 };
 
-// Llamamos a fetchTrains al cargar la página para obtener la información de los trenes
+
 fetchTrains();
 </script>
 
@@ -124,17 +132,20 @@ fetchTrains();
   overflow-y: auto;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+.arrival-messages {
+  margin-top: 20px;
 }
 
-th, td {
-  border: 1px solid black;
-  padding: 8px;
-  text-align: left;
+.arrival-messages ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.arrival-messages li {
+  margin-bottom: 5px;
 }
 </style>
+
 
 
 
